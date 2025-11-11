@@ -87,8 +87,8 @@ class Aplicacion():
 
     def __init__(self):
         self.root=tk.Tk()
-        #self.root.geometry('1024x550+0+0')
-        self.root.attributes('-fullscreen',True)
+        # self.root.geometry('1024x550+0+0')
+        self.root.after(100, lambda: self.root.attributes('-fullscreen', True))
         self.root.title('Ensayo de Fusibles Cilíndricos')
 
         #############################################
