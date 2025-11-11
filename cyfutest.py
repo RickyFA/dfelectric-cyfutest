@@ -35,8 +35,8 @@ except:
     ##################################
 
 try:
-    rpiplc.init("RPIPLC_V6", "RPIPLC_21", restart=False)
-    rpiplc.analog_write("A0.7", 0)
+    rpiplc.init("RPIPLC_V6", "RPIPLC_19R", restart=False)
+    rpiplc.analog_write("A0.0", 0)
     DATA=Adafruit_ADS1x15.ADS1115()
 except:
     print("Unable to find I2C bus devices")
@@ -567,9 +567,9 @@ class Aplicacion():
             GPIO.output(BalizaAmarilla,1)
             GPIO.output(BalizaRoja,1)
             try:
-                rpiplc.analog_write("A0.7", 0)
+                rpiplc.analog_write("A0.0", 0)
             except:
-                print("Error en rpiplc.analog_write(\"A0.7\", 0)")
+                print("Error en rpiplc.analog_write(\"A0.0\", 0)")
 
             #############
             #############
@@ -707,7 +707,7 @@ class Aplicacion():
                 val=0
             val=int(float(val)/220.0*2048.0)
             try:
-                rpiplc.analog_write("A0.7", val)
+                rpiplc.analog_write("A0.0", val)
                 print("CORRIENTE CONSIGNA : val="+str(val))
             except:
                 print("Error en Corriente_Consigna()")
@@ -1341,7 +1341,7 @@ class Aplicacion():
             GPIO.output(BalizaVerde,0)
             GPIO.output(BalizaAmarilla,1)
             GPIO.output(BalizaRoja,1)
-            rpiplc.analog_write("A0.7", 0)
+            rpiplc.analog_write("A0.0", 0)
             self.EDStopButton.config(state=tk.DISABLED)
             self.mainbutton_ensayodirecto.config(state=tk.ACTIVE)
             self.mainbutton_ensayoautomatico.config(state=tk.ACTIVE)
@@ -1410,7 +1410,7 @@ class Aplicacion():
         file.write("\r\n" + "COMENTARIO: " + ((self.EDEntryTestReport.get("1.0",tk.END)).replace("\n","\r\n")).encode('utf-8'))
         file.close()
 
-        rpiplc.analog_write("A0.7", 0)
+        rpiplc.analog_write("A0.0", 0)
         GPIO.output(BalizaVerde,0)
         GPIO.output(BalizaAmarilla,1)
         GPIO.output(BalizaRoja,1)
@@ -1593,7 +1593,7 @@ class Aplicacion():
                 val=0
             val=int(float(val)/220.0*2048.0)
             try:
-                rpiplc.analog_write("A0.7", val)
+                rpiplc.analog_write("A0.0", val)
                 print("CORRIENTE CONSIGNA : val="+str(val))
             except:
                 print("Error en Corriente_Consigna()")
