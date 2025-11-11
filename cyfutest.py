@@ -1,18 +1,18 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import tkinter as tk
-from tkinter import font, filedialog
-
-import RPi.GPIO as GPIO
-import time
-import serial
-import board
-import busio
-import adafruit_mcp4725
-import adafruit_ads1x15.ads1115
 import datetime
 import os
+import time
+import tkinter as tk
+from tkinter import filedialog, font
+
+import adafruit_ads1x15.ads1115
+import board
+import busio
+import RPi.GPIO as GPIO
+import serial
+from librpiplc import rpiplc
 
     ########################################################
     #### Rutas a directorios para carga/guarda archivos ####
