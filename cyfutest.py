@@ -14,75 +14,71 @@ import RPi.GPIO as GPIO
 import serial
 from librpiplc import rpiplc
 
-    ########################################################
-    #### Rutas a directorios para carga/guarda archivos ####
-    ########################################################
+########################################################
+#### Rutas a directorios para carga/guarda archivos ####
+########################################################
 path_CargarReferencias="/home/pi/Desktop/Referencias/"
 path_GuardarInformes="/home/pi/Desktop/Test_Reports/"
 #path_CargarReferencias="/mnt/referencias_gg/"
 #path_GuardarInformes="/mnt/testreports/"
 
-    ##################################
-    #### Monta Sensor Temperatura ####
-    ##################################
+##################################
+#### Monta Sensor Temperatura ####
+##################################
 try:
     SENS=serial.Serial('/dev/ttyACM0',9600,timeout=1)
 except:
     print("Unable to initialize Serial Communication")
 
-    ##################################
-    #### Monta objetos en bus i2c ####
-    ##################################
-
+##################################
+#### Monta objetos en bus i2c ####
+##################################
 try:
-    rpiplc.init("RPIPLC_V6", "RPIPLC_19R", restart=False)
-    rpiplc.analog_write("A0.0", 0)
     DATA=Adafruit_ADS1x15.ADS1115()
 except:
     print("Unable to find I2C bus devices")
 
-    #####################
-    #### Declara IOs ####
-    #####################
-RelayPd=40 #Relé
-RelayNoFus=31 #Relé
-RelayFus=33 #Relé
-BalizaVerde=32 #Relé
-BalizaAmarilla=36 #Relé
-BalizaRoja=38 #Relé
-Fuente=37 # Relé (Contactor fon)
-FinEnsayo=22 #Entrada
-ParoEmerg=29 #Entrada
+#####################
+#### Declara IOs ####
+#####################
+RelayPd = "R0.5"
+RelayNoFus = "R0.4"
+RelayFus = "R0.3"
+BalizaVerde = "R0.8"
+BalizaAmarilla = "R0.7"
+BalizaRoja = "R0.6"
+Fuente = "R0.1"
+FinEnsayo= 12 #Entrada
+ParoEmerg= 13 #Entrada
 
-    ########################
-    #### Inizializa IOs ####
-    ########################
+########################
+#### Inizializa IOs ####
+########################
 try:
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(RelayPd,GPIO.OUT)
-    GPIO.output(RelayPd,1)
-    GPIO.setup(RelayNoFus,GPIO.OUT)
-    GPIO.output(RelayNoFus,1)
-    GPIO.setup(RelayFus,GPIO.OUT)
-    GPIO.output(RelayFus,1)
-    GPIO.setup(BalizaVerde,GPIO.OUT)
-    GPIO.output(BalizaVerde,0)
-    GPIO.setup(BalizaAmarilla,GPIO.OUT)
-    GPIO.output(BalizaAmarilla,1)
-    GPIO.setup(BalizaRoja,GPIO.OUT)
-    GPIO.output(BalizaRoja,1)
-    GPIO.setup(Fuente,GPIO.OUT)
-    GPIO.output(Fuente,0)
-    GPIO.setup(FinEnsayo,GPIO.IN,pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(ParoEmerg,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+    rpiplc.init("RPIPLC_V6", "RPIPLC_19R", restart=False)
+    
+    rpiplc.analog_write("A0.0", 0) # Consigna fuente de corriente
+    
+    rpiplc.digital_write(RelayPd, False)    
+    rpiplc.digital_write(RelayNoFus, False)
+    rpiplc.digital_write(RelayFus, False)
+    rpiplc.digital_write(BalizaVerde, True)
+    rpiplc.digital_write(BalizaAmarilla, False)
+    rpiplc.digital_write(BalizaRoja, False)
+    rpiplc.digital_write(Fuente, True)
+
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(FinEnsayo, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(ParoEmerg, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    
     time.sleep(1)
 
 except:
     print("Unable to load GPIOs")
 
-    #######################################################
-    #### Define clase Tk Aplicacion como MainRoot ####
-    #######################################################
+#######################################################
+#### Define clase Tk Aplicacion como MainRoot ####
+#######################################################
 
 class Aplicacion():
 
@@ -560,12 +556,12 @@ class Aplicacion():
             self.EAButtonCargar.config(state=tk.ACTIVE)
             self.EAButtonBuscar.config(state=tk.ACTIVE)
 
-            GPIO.output(RelayPd,1)
-            GPIO.output(RelayNoFus,1)
-            GPIO.output(RelayFus,1)
-            GPIO.output(BalizaVerde,0)
-            GPIO.output(BalizaAmarilla,1)
-            GPIO.output(BalizaRoja,1)
+            rpiplc.digital_write(RelayPd, False)
+            rpiplc.digital_write(RelayNoFus, False)
+            rpiplc.digital_write(RelayFus, False)
+            rpiplc.digital_write(BalizaVerde, True)
+            rpiplc.digital_write(BalizaAmarilla, False)
+            rpiplc.digital_write(BalizaRoja, False)
             try:
                 rpiplc.analog_write("A0.0", 0)
             except:
@@ -730,12 +726,12 @@ class Aplicacion():
                     self.EDTestM1.set("NO SE PUDO ESTABLECER CORRIENTE DE ENSAYO")
                     self.root.update()
                     self.fin_ensayo.set(True)
-                    GPIO.output(RelayPd,1)
-                    GPIO.output(RelayNoFus,1)
-                    GPIO.output(RelayFus,1)
-                    GPIO.output(BalizaVerde,1)
-                    GPIO.output(BalizaAmarilla,1)
-                    GPIO.output(BalizaRoja,0)
+                    rpiplc.digital_write(RelayPd, False)
+                    rpiplc.digital_write(RelayNoFus, False)
+                    rpiplc.digital_write(RelayFus, False)
+                    rpiplc.digital_write(BalizaVerde, False)
+                    rpiplc.digital_write(BalizaAmarilla, False)
+                    rpiplc.digital_write(BalizaRoja, True)
                     Corriente_Consigna(0)
                     break
                 if corriente_real>consigna:
@@ -771,12 +767,12 @@ class Aplicacion():
                 time_passed=0
                 Resultado=""
                 average=0.0
-                GPIO.output(RelayPd,0)
-                GPIO.output(RelayNoFus,1)
-                GPIO.output(RelayFus,1)
-                GPIO.output(BalizaVerde,1)
-                GPIO.output(BalizaAmarilla,0)
-                GPIO.output(BalizaRoja,1)
+                rpiplc.digital_write(RelayPd, True)
+                rpiplc.digital_write(RelayNoFus, False)
+                rpiplc.digital_write(RelayFus, False)
+                rpiplc.digital_write(BalizaVerde, False)
+                rpiplc.digital_write(BalizaAmarilla, True)
+                rpiplc.digital_write(BalizaRoja, False)
                 time.sleep(0.5)
                 Calibrar_Corriente(corriente)
                 corrientes=[]
@@ -787,18 +783,18 @@ class Aplicacion():
                         if GPIO.input(ParoEmerg)==False:
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
-                            GPIO.output(BalizaAmarilla,1)
-                            GPIO.output(BalizaVerde,1)
-                            GPIO.output(BalizaRoja,0)
+                            rpiplc.digital_write(BalizaAmarilla, False)
+                            rpiplc.digital_write(BalizaVerde, False)
+                            rpiplc.digital_write(BalizaRoja, True)
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
                             if GPIO.input(FinEnsayo)==True:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
                         if len(corrientes)<10:
                             sum=0.0
@@ -829,16 +825,16 @@ class Aplicacion():
                                 if message != "OK\r\n":
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
-                                    GPIO.output(BalizaAmarilla,1)
-                                    GPIO.output(BalizaVerde,1)
-                                    GPIO.output(BalizaRoja,0)
+                                    rpiplc.digital_write(BalizaAmarilla, False)
+                                    rpiplc.digital_write(BalizaVerde, False)
+                                    rpiplc.digital_write(BalizaRoja, True)
                                     break
                             except:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN EL EQUIPO")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
 
                         if GPIO.input(FinEnsayo)==False:
@@ -846,16 +842,16 @@ class Aplicacion():
                             if valor_corriente<0.5*corriente:           #se modifica fecha 30-07-2019. antes "<3"
                                 self.fin_ensayo.set(True)
                                 Resultado="Resultado: NO CONFORME (Fusible fundido)"
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
 
                         if time_passed>tiempo:
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("FIN DE ENSAYO: TIEMPO SUPERIOR A TIEMPO CONVENCIONAL")
-                            GPIO.output(BalizaAmarilla,1)
-                            GPIO.output(BalizaVerde,1)
-                            GPIO.output(BalizaRoja,0)
+                            rpiplc.digital_write(BalizaAmarilla, False)
+                            rpiplc.digital_write(BalizaVerde, False)
+                            rpiplc.digital_write(BalizaRoja, True)
                         if dif_time>15:
                             valor_tension=Lectura_CDT()
                             print(valor_tension)
@@ -869,9 +865,9 @@ class Aplicacion():
                                 average=(times[i-1]+times[i-21]+times[i-41])/3
                                 if ((times[i-1]<(1.005*average))&(times[i-1]>(0.995*average))):
                                     self.fin_ensayo.set(True)
-                                    GPIO.output(BalizaAmarilla,1)
-                                    GPIO.output(BalizaVerde,0)
-                                    GPIO.output(BalizaRoja,1)
+                                    rpiplc.digital_write(BalizaAmarilla, False)
+                                    rpiplc.digital_write(BalizaVerde, True)
+                                    rpiplc.digital_write(BalizaRoja, False)
 
                         time.sleep(0.5)
                         timeN=time.time()
@@ -887,12 +883,12 @@ class Aplicacion():
                                 self.EDTestM3.set(Resultado_tiempo+ "\n"+"Potencia Disipada: "+str("%.3f" % round(average,3)) + "W")
 
             if ensayo==2:
-                GPIO.output(RelayPd,1)
-                GPIO.output(RelayNoFus,0)
-                GPIO.output(RelayFus,1)
-                GPIO.output(BalizaVerde,1)
-                GPIO.output(BalizaAmarilla,0)
-                GPIO.output(BalizaRoja,1)
+                rpiplc.digital_write(RelayPd, False)
+                rpiplc.digital_write(RelayNoFus, True)
+                rpiplc.digital_write(RelayFus, False)
+                rpiplc.digital_write(BalizaVerde, False)
+                rpiplc.digital_write(BalizaAmarilla, True)
+                rpiplc.digital_write(BalizaRoja, False)
                 time.sleep(0.2)
                 Calibrar_Corriente(corriente)
                 valor_corriente=Lectura_Corriente()
@@ -904,18 +900,18 @@ class Aplicacion():
                         if GPIO.input(ParoEmerg)==False:
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
-                            GPIO.output(BalizaAmarilla,1)
-                            GPIO.output(BalizaVerde,1)
-                            GPIO.output(BalizaRoja,0)
+                            rpiplc.digital_write(BalizaAmarilla, False)
+                            rpiplc.digital_write(BalizaVerde, False)
+                            rpiplc.digital_write(BalizaRoja, True)
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
                             if GPIO.input(FinEnsayo)==True:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
                         if len(corrientes)<10:
                             sum=0.0
@@ -948,16 +944,16 @@ class Aplicacion():
                                 if message != "OK\r\n":
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
-                                    GPIO.output(BalizaAmarilla,1)
-                                    GPIO.output(BalizaVerde,1)
-                                    GPIO.output(BalizaRoja,0)
+                                    rpiplc.digital_write(BalizaAmarilla, False)
+                                    rpiplc.digital_write(BalizaVerde, False)
+                                    rpiplc.digital_write(BalizaRoja, True)
                                     break
                             except:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN EL EQUIPO")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
                         timeN=time.time()
                         time_passed=int(timeN-time_start)
@@ -965,17 +961,17 @@ class Aplicacion():
                             self.fin_ensayo.set(True)
                             self.Resultado.set("Resultado: CONFORME")
                             print("CONFORME")
-                            GPIO.output(BalizaAmarilla,1)
-                            GPIO.output(BalizaVerde,0)
-                            GPIO.output(BalizaRoja,1)
+                            rpiplc.digital_write(BalizaAmarilla, False)
+                            rpiplc.digital_write(BalizaVerde, True)
+                            rpiplc.digital_write(BalizaRoja, False)
                         if GPIO.input(FinEnsayo)==False:
                             valor_corriente=Lectura_Corriente()
                             if valor_corriente<0.5*corriente:           #se modifica fecha 30-07-2019. antes "<3"
                                 self.fin_ensayo.set(True)
                                 self.Resultado.set("Resultado: NO CONFORME")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 print("NO CONFORME")
                         time.sleep(0.5)
                         self.EDTestM5.set("Tiempo transcurrido: " + str(datetime.timedelta(seconds=time_passed))+"s")
@@ -984,12 +980,12 @@ class Aplicacion():
                     self.root.update()
 
             if ensayo==3:
-                GPIO.output(RelayPd,1)
-                GPIO.output(RelayNoFus,1)
-                GPIO.output(RelayFus,0)
-                GPIO.output(BalizaVerde,1)
-                GPIO.output(BalizaAmarilla,0)
-                GPIO.output(BalizaRoja,1)
+                rpiplc.digital_write(RelayPd, False)
+                rpiplc.digital_write(RelayNoFus, False)
+                rpiplc.digital_write(RelayFus, True)
+                rpiplc.digital_write(BalizaVerde, False)
+                rpiplc.digital_write(BalizaAmarilla, True)
+                rpiplc.digital_write(BalizaRoja, False)
                 time.sleep(0.2)
                 Calibrar_Corriente(corriente)
                 valor_corriente=Lectura_Corriente()
@@ -1002,18 +998,18 @@ class Aplicacion():
                         if GPIO.input(ParoEmerg)==False:
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
-                            GPIO.output(BalizaAmarilla,1)
-                            GPIO.output(BalizaVerde,1)
-                            GPIO.output(BalizaRoja,0)
+                            rpiplc.digital_write(BalizaAmarilla, False)
+                            rpiplc.digital_write(BalizaVerde, False)
+                            rpiplc.digital_write(BalizaRoja, True)
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
                             if GPIO.input(FinEnsayo)==True:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
                         if len(corrientes)<10:
                             sum=0.0
@@ -1045,32 +1041,32 @@ class Aplicacion():
                                 if message != "OK\r\n":
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
-                                    GPIO.output(BalizaAmarilla,1)
-                                    GPIO.output(BalizaVerde,1)
-                                    GPIO.output(BalizaRoja,0)
+                                    rpiplc.digital_write(BalizaAmarilla, False)
+                                    rpiplc.digital_write(BalizaVerde, False)
+                                    rpiplc.digital_write(BalizaRoja, True)
                                     break
                             except:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN EL EQUIPO")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
                         if time_passed>tiempo:
                             self.fin_ensayo.set(True)
                             self.Resultado.set("Resultado: NO CONFORME")
                             print("NO CONFORME")
-                            GPIO.output(BalizaAmarilla,1)
-                            GPIO.output(BalizaVerde,1)
-                            GPIO.output(BalizaRoja,0)
+                            rpiplc.digital_write(BalizaAmarilla, False)
+                            rpiplc.digital_write(BalizaVerde, False)
+                            rpiplc.digital_write(BalizaRoja, True)
                         if GPIO.input(FinEnsayo)==False:
                             valor_corriente=Lectura_Corriente()         
                             if valor_corriente<0.5*corriente:           #se modifica fecha 30-07-2019. antes "<3"
                                 self.fin_ensayo.set(True)
                                 self.Resultado.set("Resultado: CONFORME")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,0)
-                                GPIO.output(BalizaRoja,1)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, True)
+                                rpiplc.digital_write(BalizaRoja, False)
                                 print("CONFORME")
                         time.sleep(0.5)
                         self.EDTestM5.set("Tiempo transcurrido: " + str(datetime.timedelta(seconds=time_passed))+"s")
@@ -1081,9 +1077,9 @@ class Aplicacion():
             Corriente_Consigna(0)
             self.Corriente_medida.set("0.0A")
             self.CDT_medida.set("0.0mV")
-            GPIO.output(RelayPd,1)
-            GPIO.output(RelayNoFus,1)
-            GPIO.output(RelayFus,1)
+            rpiplc.digital_write(RelayPd, False)
+            rpiplc.digital_write(RelayNoFus, False)
+            rpiplc.digital_write(RelayFus, False)
             if self.EDTestM1.get()==("...ENSAYANDO..."):
                 self.EDTestM1.set("ENSAYO FINALIZADO")
             self.EDStopButton.config(state=tk.DISABLED)
@@ -1335,12 +1331,12 @@ class Aplicacion():
     def F_EDstopButton(self):
         def PararEnsayo():
             TOPerror.destroy()
-            GPIO.output(RelayPd,1)
-            GPIO.output(RelayNoFus,1)
-            GPIO.output(RelayFus,1)
-            GPIO.output(BalizaVerde,0)
-            GPIO.output(BalizaAmarilla,1)
-            GPIO.output(BalizaRoja,1)
+            rpiplc.digital_write(RelayPd, False)
+            rpiplc.digital_write(RelayNoFus, False)
+            rpiplc.digital_write(RelayFus, False)
+            rpiplc.digital_write(BalizaVerde, True)
+            rpiplc.digital_write(BalizaAmarilla, False)
+            rpiplc.digital_write(BalizaRoja, False)
             rpiplc.analog_write("A0.0", 0)
             self.EDStopButton.config(state=tk.DISABLED)
             self.mainbutton_ensayodirecto.config(state=tk.ACTIVE)
@@ -1411,9 +1407,9 @@ class Aplicacion():
         file.close()
 
         rpiplc.analog_write("A0.0", 0)
-        GPIO.output(BalizaVerde,0)
-        GPIO.output(BalizaAmarilla,1)
-        GPIO.output(BalizaRoja,1)
+        rpiplc.digital_write(BalizaVerde, True)
+        rpiplc.digital_write(BalizaAmarilla, False)
+        rpiplc.digital_write(BalizaRoja, False)
 
 
 
@@ -1616,12 +1612,12 @@ class Aplicacion():
                     self.EDTestM1.set("NO SE PUDO ESTABLECER CORRIENTE DE ENSAYO")
                     self.root.update()
                     self.fin_ensayo.set(True)
-                    GPIO.output(RelayPd,1)
-                    GPIO.output(RelayNoFus,1)
-                    GPIO.output(RelayFus,1)
-                    GPIO.output(BalizaVerde,1)
-                    GPIO.output(BalizaAmarilla,1)
-                    GPIO.output(BalizaRoja,0)
+                    rpiplc.digital_write(RelayPd, False)
+                    rpiplc.digital_write(RelayNoFus, False)
+                    rpiplc.digital_write(RelayFus, False)
+                    rpiplc.digital_write(BalizaVerde, False)
+                    rpiplc.digital_write(BalizaAmarilla, False)
+                    rpiplc.digital_write(BalizaRoja, True)
                     Corriente_Consigna(0)
                     break
                 if corriente_real>consigna:
@@ -1660,12 +1656,12 @@ class Aplicacion():
                 time_passed=0
                 Resultado=""
                 average=0.0
-                GPIO.output(RelayPd,0)
-                GPIO.output(RelayNoFus,1)
-                GPIO.output(RelayFus,1)
-                GPIO.output(BalizaVerde,1)
-                GPIO.output(BalizaAmarilla,0)
-                GPIO.output(BalizaRoja,1)
+                rpiplc.digital_write(RelayPd, True)
+                rpiplc.digital_write(RelayNoFus, False)
+                rpiplc.digital_write(RelayFus, False)
+                rpiplc.digital_write(BalizaVerde, False)
+                rpiplc.digital_write(BalizaAmarilla, True)
+                rpiplc.digital_write(BalizaRoja, False)
                 time.sleep(0.2)
                 Calibrar_Corriente(Ipd)
                 corrientes=[]
@@ -1677,9 +1673,9 @@ class Aplicacion():
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
                             self.Resultado.set("Sin resultado")
-                            GPIO.output(BalizaAmarilla,1)
-                            GPIO.output(BalizaVerde,1)
-                            GPIO.output(BalizaRoja,0)
+                            rpiplc.digital_write(BalizaAmarilla, False)
+                            rpiplc.digital_write(BalizaVerde, False)
+                            rpiplc.digital_write(BalizaRoja, True)
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
@@ -1687,9 +1683,9 @@ class Aplicacion():
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                 self.Resultado.set("Sin resultado")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
                         if len(corrientes)<10:
                             sum=0.0
@@ -1723,17 +1719,17 @@ class Aplicacion():
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                     self.Resultado.set("Sin resultado")
-                                    GPIO.output(BalizaAmarilla,1)
-                                    GPIO.output(BalizaVerde,1)
-                                    GPIO.output(BalizaRoja,0)
+                                    rpiplc.digital_write(BalizaAmarilla, False)
+                                    rpiplc.digital_write(BalizaVerde, False)
+                                    rpiplc.digital_write(BalizaRoja, True)
                                     break
                             except:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN EL EQUIPO")
                                 self.Resultado.set("Sin resultado")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
 
                         if GPIO.input(FinEnsayo)==False:
@@ -1741,9 +1737,9 @@ class Aplicacion():
                             if valor_corriente<0.5*Ipd:         #se modifica fecha 30-07-2019. antes "<3"                       
                                 self.fin_ensayo.set(True)
                                 Resultado=" NO CONFORME (Fusible fundido)"
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                         if time_passed>tiempo:
                             fin_ensayo_interno=True
                             Resultado=Resultado+" SUPERIOR A TIEMPO CONVENCIONAL"
@@ -1766,9 +1762,9 @@ class Aplicacion():
                         self.EDTestM3.set("Ensayo POTENCIA DISIPADA \n" +Resultado_tiempo+"\n"+Resultado)
                         self.root.update()
                     Corriente_Consigna(0)
-                    GPIO.output(RelayPd,1)
-                    GPIO.output(RelayNoFus,1)
-                    GPIO.output(RelayFus,1)
+                    rpiplc.digital_write(RelayPd, False)
+                    rpiplc.digital_write(RelayNoFus, False)
+                    rpiplc.digital_write(RelayFus, False)
                     self.Corriente_medida.set("0.0A")
                     self.CDT_medida.set("0.0mV")
                     time.sleep(1)
@@ -1781,9 +1777,9 @@ class Aplicacion():
                 time_start=time.time()
                 fin_ensayo_interno=False
                 Corriente_Consigna(Inf)
-                GPIO.output(RelayPd,1)
-                GPIO.output(RelayNoFus,0)
-                GPIO.output(RelayFus,1)
+                rpiplc.digital_write(RelayPd, False)
+                rpiplc.digital_write(RelayNoFus, True)
+                rpiplc.digital_write(RelayFus, False)
                 time.sleep(0.2)
                 Calibrar_Corriente(Inf)
                 corrientes=[]
@@ -1797,9 +1793,9 @@ class Aplicacion():
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
                             self.Resultado.set("Sin resultado")
-                            GPIO.output(BalizaAmarilla,1)
-                            GPIO.output(BalizaVerde,1)
-                            GPIO.output(BalizaRoja,0)
+                            rpiplc.digital_write(BalizaAmarilla, False)
+                            rpiplc.digital_write(BalizaVerde, False)
+                            rpiplc.digital_write(BalizaRoja, True)
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
@@ -1807,9 +1803,9 @@ class Aplicacion():
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                 self.Resultado.set("Sin resultado")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
                         if len(corrientes)<10:
                             sum=0.0
@@ -1842,16 +1838,16 @@ class Aplicacion():
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                     self.Resultado.set("Sin resultado")
-                                    GPIO.output(BalizaAmarilla,1)
-                                    GPIO.output(BalizaVerde,1)
-                                    GPIO.output(BalizaRoja,0)
+                                    rpiplc.digital_write(BalizaAmarilla, False)
+                                    rpiplc.digital_write(BalizaVerde, False)
+                                    rpiplc.digital_write(BalizaRoja, True)
                                     break
                             except:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN EL EQUIPO")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
                         if time_passed>tiempo:
                             fin_ensayo_interno=True
@@ -1861,18 +1857,18 @@ class Aplicacion():
                             if valor_corriente<0.5*Inf:         #se modifica fecha 30-07-2019. antes "<3"
                                 self.fin_ensayo.set(True)
                                 self.Resultado.set(":  NO CONFORME")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                         time.sleep(0.5)
                         self.EDTestM4.set("Ensayo NO FUSION \nTiempo transcurrido: " + str(datetime.timedelta(seconds=time_passed))+"s")
                         self.root.update()
                     self.EDTestM4.set(self.EDTestM4.get()+self.Resultado.get())
                     self.root.update()
                 Corriente_Consigna(0)
-                GPIO.output(RelayPd,1)
-                GPIO.output(RelayNoFus,1)
-                GPIO.output(RelayFus,1)
+                rpiplc.digital_write(RelayPd, False)
+                rpiplc.digital_write(RelayNoFus, False)
+                rpiplc.digital_write(RelayFus, False)
                 self.Corriente_medida.set("0.0A")
                 time.sleep(1)
 
@@ -1881,9 +1877,9 @@ class Aplicacion():
                 time_start=time.time()
                 fin_ensayo_interno=False
                 Corriente_Consigna(If)
-                GPIO.output(RelayPd,1)
-                GPIO.output(RelayNoFus,1)
-                GPIO.output(RelayFus,0)
+                rpiplc.digital_write(RelayPd, False)
+                rpiplc.digital_write(RelayNoFus, False)
+                rpiplc.digital_write(RelayFus, True)
                 time.sleep(0.2)
                 Calibrar_Corriente(If)
                 corrientes=[]
@@ -1896,9 +1892,9 @@ class Aplicacion():
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
                             self.Resultado.set("Sin resultado")
-                            GPIO.output(BalizaAmarilla,1)
-                            GPIO.output(BalizaVerde,1)
-                            GPIO.output(BalizaRoja,0)
+                            rpiplc.digital_write(BalizaAmarilla, False)
+                            rpiplc.digital_write(BalizaVerde, False)
+                            rpiplc.digital_write(BalizaRoja, True)
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
@@ -1906,9 +1902,9 @@ class Aplicacion():
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                 self.Resultado.set("Sin resultado")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
                         if len(corrientes)<10:
                             sum=0.0
@@ -1941,32 +1937,32 @@ class Aplicacion():
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                     self.Resultado.set("Sin resultado")
-                                    GPIO.output(BalizaAmarilla,1)
-                                    GPIO.output(BalizaVerde,1)
-                                    GPIO.output(BalizaRoja,0)
+                                    rpiplc.digital_write(BalizaAmarilla, False)
+                                    rpiplc.digital_write(BalizaVerde, False)
+                                    rpiplc.digital_write(BalizaRoja, True)
                                     break
                             except:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN EL EQUIPO")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,1)
-                                GPIO.output(BalizaRoja,0)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, False)
+                                rpiplc.digital_write(BalizaRoja, True)
                                 break
                         if time_passed>tiempo:
                             self.fin_ensayo.set(True)
                             self.Resultado.set(" : NO CONFORME")
                             print("NO CONFORME")
-                            GPIO.output(BalizaAmarilla,1)
-                            GPIO.output(BalizaVerde,1)
-                            GPIO.output(BalizaRoja,0)
+                            rpiplc.digital_write(BalizaAmarilla, False)
+                            rpiplc.digital_write(BalizaVerde, False)
+                            rpiplc.digital_write(BalizaRoja, True)
                         if GPIO.input(FinEnsayo)==False:
                             valor_corriente=Lectura_Corriente()
                             if valor_corriente<0.5*If:          #se modifica fecha 30-07-2019. antes "<3"
                                 self.fin_ensayo.set(True)
                                 self.Resultado.set(" : CONFORME")
-                                GPIO.output(BalizaAmarilla,1)
-                                GPIO.output(BalizaVerde,0)
-                                GPIO.output(BalizaRoja,1)
+                                rpiplc.digital_write(BalizaAmarilla, False)
+                                rpiplc.digital_write(BalizaVerde, True)
+                                rpiplc.digital_write(BalizaRoja, False)
                                 print("CONFORME")
                         time.sleep(0.5)
                         self.EDTestM5.set("Ensayo FUSION  \nTiempo transcurrido: " + str(datetime.timedelta(seconds=time_passed))+"s")
@@ -1975,9 +1971,9 @@ class Aplicacion():
                     self.root.update()
 
             Corriente_Consigna(0)
-            GPIO.output(RelayPd,1)
-            GPIO.output(RelayNoFus,1)
-            GPIO.output(RelayFus,1)
+            rpiplc.digital_write(RelayPd, False)
+            rpiplc.digital_write(RelayNoFus, False)
+            rpiplc.digital_write(RelayFus, False)
             self.Corriente_medida.set("0.0A")
             if self.EDTestM1.get()==("...ENSAYANDO..."):
                 self.EDTestM1.set("ENSAYO FINALIZADO")
