@@ -48,8 +48,9 @@ BalizaVerde = "R0.8"
 BalizaAmarilla = "R0.7"
 BalizaRoja = "R0.6"
 Fuente = "R0.1"
-FinEnsayo= 12 #Entrada
-ParoEmerg= "I0.1"
+FinEnsayo = 12 #Entrada
+Microfusibles = "I0.0" 
+ParoEmerg = "I0.1"
 
 ########################
 #### Inizializa IOs ####
@@ -818,10 +819,7 @@ class Aplicacion():
                         self.Corriente_medida.set(str("%.2f"%media_corrientes)+"A")
                         if ((time_passed %10)==0):
                             try:
-                                SENS.write(("M").encode())
-                                time.sleep(0.2)
-                                message=SENS.readline().decode("utf-8")
-                                if message != "OK\r\n":
+                                if rpiplc.digital_read(Microfusibles) == 0:
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                     rpiplc.digital_write(BalizaAmarilla, False)
@@ -937,10 +935,7 @@ class Aplicacion():
                         if ((time_passed %10)==0):
 
                             try:
-                                SENS.write(("M").encode())
-                                time.sleep(0.2)
-                                message=SENS.readline().decode("utf-8")
-                                if message != "OK\r\n":
+                                if rpiplc.digital_read(Microfusibles) == 0:
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                     rpiplc.digital_write(BalizaAmarilla, False)
@@ -1034,10 +1029,7 @@ class Aplicacion():
 
                         if ((time_passed %10)==0):
                             try:
-                                SENS.write(("M").encode())
-                                time.sleep(0.2)
-                                message=SENS.readline().decode("utf-8")
-                                if message != "OK\r\n":
+                                if rpiplc.digital_read(Microfusibles) == 0:
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                     rpiplc.digital_write(BalizaAmarilla, False)
@@ -1205,10 +1197,7 @@ class Aplicacion():
                 error=True
         if not(error):
             try:
-                SENS.write(("M").encode())
-                time.sleep(0.2)
-                message=SENS.readline().decode("utf-8")
-                if message != "OK\r\n":
+                if rpiplc.digital_read(Microfusibles) == 0:
                     TOPerror=tk.Toplevel()
                     TOPerror.geometry('300x105+200+200')
                     TOPerror.title("Error")
@@ -1711,10 +1700,7 @@ class Aplicacion():
                         if ((time_passed %10)==0):
 
                             try:
-                                SENS.write(("M").encode())
-                                time.sleep(0.2)
-                                message=SENS.readline().decode("utf-8")
-                                if message != "OK\r\n":
+                                if rpiplc.digital_read(Microfusibles) == 0:
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                     self.Resultado.set("Sin resultado")
@@ -1830,10 +1816,7 @@ class Aplicacion():
 
                         if ((time_passed %10)==0):
                             try:
-                                SENS.write(("M").encode())
-                                time.sleep(0.2)
-                                message=SENS.readline().decode("utf-8")
-                                if message != "OK\r\n":
+                                if rpiplc.digital_read(Microfusibles) == 0:
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                     self.Resultado.set("Sin resultado")
@@ -1929,10 +1912,7 @@ class Aplicacion():
 
                         if ((time_passed %10)==0):
                             try:
-                                SENS.write(("M").encode())
-                                time.sleep(0.2)
-                                message=SENS.readline().decode("utf-8")
-                                if message != "OK\r\n":
+                                if rpiplc.digital_read(Microfusibles) == 0:
                                     self.fin_ensayo.set(True)
                                     self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                     self.Resultado.set("Sin resultado")
@@ -2101,10 +2081,7 @@ class Aplicacion():
                 error=True
         if not(error):
             try:
-                SENS.write(("M").encode())
-                time.sleep(0.2)
-                message=SENS.readline().decode("utf-8")
-                if message != "OK\r\n":
+                if rpiplc.digital_read(Microfusibles) == 0:
                     TOPerror=tk.Toplevel()
                     TOPerror.geometry('300x105+200+200')
                     TOPerror.title("Error")
