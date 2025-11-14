@@ -48,9 +48,9 @@ BalizaVerde = "R0.8"
 BalizaAmarilla = "R0.7"
 BalizaRoja = "R0.6"
 Fuente = "R0.1"
-FinEnsayo = 12 #Entrada
 Microfusibles = "I0.0" 
 ParoEmerg = "I0.1"
+FinEnsayo = "OPTO_IN_1"
 
 ########################
 #### Inizializa IOs ####
@@ -68,9 +68,6 @@ try:
     rpiplc.digital_write(BalizaRoja, False)
     rpiplc.digital_write(Fuente, True)
 
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(FinEnsayo, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    
     time.sleep(1)
 
 except:
@@ -789,7 +786,7 @@ class Aplicacion():
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
-                            if GPIO.input(FinEnsayo)==True:
+                            if rpiplc.digital_read(FinEnsayo) == 0:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                 rpiplc.digital_write(BalizaAmarilla, False)
@@ -834,7 +831,7 @@ class Aplicacion():
                                 rpiplc.digital_write(BalizaRoja, True)
                                 break
 
-                        if GPIO.input(FinEnsayo)==False:
+                        if rpiplc.digital_read(FinEnsayo) == 1:
                             valor_corriente=Lectura_Corriente()
                             if valor_corriente<0.5*corriente:           #se modifica fecha 30-07-2019. antes "<3"
                                 self.fin_ensayo.set(True)
@@ -903,7 +900,7 @@ class Aplicacion():
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
-                            if GPIO.input(FinEnsayo)==True:
+                            if rpiplc.digital_read(FinEnsayo) == 0:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                 rpiplc.digital_write(BalizaAmarilla, False)
@@ -958,7 +955,7 @@ class Aplicacion():
                             rpiplc.digital_write(BalizaAmarilla, False)
                             rpiplc.digital_write(BalizaVerde, True)
                             rpiplc.digital_write(BalizaRoja, False)
-                        if GPIO.input(FinEnsayo)==False:
+                        if rpiplc.digital_read(FinEnsayo) == 1:
                             valor_corriente=Lectura_Corriente()
                             if valor_corriente<0.5*corriente:           #se modifica fecha 30-07-2019. antes "<3"
                                 self.fin_ensayo.set(True)
@@ -998,7 +995,7 @@ class Aplicacion():
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
-                            if GPIO.input(FinEnsayo)==True:
+                            if rpiplc.digital_read(FinEnsayo) == 0:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                 rpiplc.digital_write(BalizaAmarilla, False)
@@ -1050,7 +1047,7 @@ class Aplicacion():
                             rpiplc.digital_write(BalizaAmarilla, False)
                             rpiplc.digital_write(BalizaVerde, False)
                             rpiplc.digital_write(BalizaRoja, True)
-                        if GPIO.input(FinEnsayo)==False:
+                        if rpiplc.digital_read(FinEnsayo) == 1:
                             valor_corriente=Lectura_Corriente()         
                             if valor_corriente<0.5*corriente:           #se modifica fecha 30-07-2019. antes "<3"
                                 self.fin_ensayo.set(True)
@@ -1223,7 +1220,7 @@ class Aplicacion():
                 error=True
 
         if not(error):
-            if GPIO.input(FinEnsayo)==True:
+            if rpiplc.digital_read(FinEnsayo) == 0:
                 TOPerror=tk.Toplevel()
                 TOPerror.geometry('350x105+200+200')
                 TOPerror.title("Error")
@@ -1667,7 +1664,7 @@ class Aplicacion():
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
-                            if GPIO.input(FinEnsayo)==True:
+                            if rpiplc.digital_read(FinEnsayo) == 0:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                 self.Resultado.set("Sin resultado")
@@ -1717,7 +1714,7 @@ class Aplicacion():
                                 rpiplc.digital_write(BalizaRoja, True)
                                 break
 
-                        if GPIO.input(FinEnsayo)==False:
+                        if rpiplc.digital_read(FinEnsayo) == 1:
                             valor_corriente=Lectura_Corriente()
                             if valor_corriente<0.5*Ipd:         #se modifica fecha 30-07-2019. antes "<3"                       
                                 self.fin_ensayo.set(True)
@@ -1784,7 +1781,7 @@ class Aplicacion():
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
-                            if GPIO.input(FinEnsayo)==True:
+                            if rpiplc.digital_read(FinEnsayo) == 0:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                 self.Resultado.set("Sin resultado")
@@ -1834,7 +1831,7 @@ class Aplicacion():
                         if time_passed>tiempo:
                             fin_ensayo_interno=True
                             self.Resultado.set(" : CONFORME")
-                        if GPIO.input(FinEnsayo)==False:
+                        if rpiplc.digital_read(FinEnsayo) == 1:
                             valor_corriente=Lectura_Corriente()
                             if valor_corriente<0.5*Inf:         #se modifica fecha 30-07-2019. antes "<3"
                                 self.fin_ensayo.set(True)
@@ -1880,7 +1877,7 @@ class Aplicacion():
                             break
                         corrientes.append(Lectura_Corriente())
                         if corrientes[len(corrientes)-1]<1:
-                            if GPIO.input(FinEnsayo)==True:
+                            if rpiplc.digital_read(FinEnsayo) == 0:
                                 self.fin_ensayo.set(True)
                                 self.EDTestM1.set("PARO DE ENSAYO: FALLO EN PROTECCIONES DEL EQUIPO")
                                 self.Resultado.set("Sin resultado")
@@ -1934,7 +1931,7 @@ class Aplicacion():
                             rpiplc.digital_write(BalizaAmarilla, False)
                             rpiplc.digital_write(BalizaVerde, False)
                             rpiplc.digital_write(BalizaRoja, True)
-                        if GPIO.input(FinEnsayo)==False:
+                        if rpiplc.digital_read(FinEnsayo) == 1:
                             valor_corriente=Lectura_Corriente()
                             if valor_corriente<0.5*If:          #se modifica fecha 30-07-2019. antes "<3"
                                 self.fin_ensayo.set(True)
@@ -2107,7 +2104,7 @@ class Aplicacion():
                 error=True
 
         if not(error):
-            if GPIO.input(FinEnsayo)==True:
+            if rpiplc.digital_read(FinEnsayo) == 0:
                 TOPerror=tk.Toplevel()
                 TOPerror.geometry('350x105+200+200')
                 TOPerror.title("Error")
