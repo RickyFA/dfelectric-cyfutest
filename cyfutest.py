@@ -49,7 +49,7 @@ BalizaAmarilla = "R0.7"
 BalizaRoja = "R0.6"
 Fuente = "R0.1"
 FinEnsayo= 12 #Entrada
-ParoEmerg= 13 #Entrada
+ParoEmerg= "I0.1"
 
 ########################
 #### Inizializa IOs ####
@@ -69,7 +69,6 @@ try:
 
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(FinEnsayo, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(ParoEmerg, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     
     time.sleep(1)
 
@@ -780,7 +779,7 @@ class Aplicacion():
                 if (self.fin_ensayo.get()==False):
                     while not(self.fin_ensayo.get()):
                         dif_time=int(timeN-timeI)
-                        if GPIO.input(ParoEmerg)==False:
+                        if rpiplc.digital_read(ParoEmerg) == 1:
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
                             rpiplc.digital_write(BalizaAmarilla, False)
@@ -897,7 +896,7 @@ class Aplicacion():
                 time_passed=1
                 if (self.fin_ensayo.get()==False):
                     while not(self.fin_ensayo.get()):
-                        if GPIO.input(ParoEmerg)==False:
+                        if rpiplc.digital_read(ParoEmerg) == 1:
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
                             rpiplc.digital_write(BalizaAmarilla, False)
@@ -995,7 +994,7 @@ class Aplicacion():
                     while not(self.fin_ensayo.get()):
                         timeN=time.time()
                         time_passed=int(timeN-time_start)
-                        if GPIO.input(ParoEmerg)==False:
+                        if rpiplc.digital_read(ParoEmerg) == 1:
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
                             rpiplc.digital_write(BalizaAmarilla, False)
@@ -1192,7 +1191,7 @@ class Aplicacion():
                 TOPerror.wait_window()
                 error=True
         if not(error):
-            if GPIO.input(ParoEmerg)==False:
+            if rpiplc.digital_read(ParoEmerg) == 1:
                 TOPerror=tk.Toplevel()
                 TOPerror.geometry('300x105+200+200')
                 TOPerror.title("Error")
@@ -1669,7 +1668,7 @@ class Aplicacion():
                 if (self.fin_ensayo.get()==False):
                     while ((not(self.fin_ensayo.get())) and (not(fin_ensayo_interno))):
                         dif_time=int(timeN-timeI)
-                        if GPIO.input(ParoEmerg)==False:
+                        if rpiplc.digital_read(ParoEmerg) == 1:
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
                             self.Resultado.set("Sin resultado")
@@ -1789,7 +1788,7 @@ class Aplicacion():
                     while (not(self.fin_ensayo.get()) and not(fin_ensayo_interno)):
                         timeN=time.time()
                         time_passed=int(timeN-time_start)
-                        if GPIO.input(ParoEmerg)==False:
+                        if rpiplc.digital_read(ParoEmerg) == 1:
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
                             self.Resultado.set("Sin resultado")
@@ -1888,7 +1887,7 @@ class Aplicacion():
                     while (not(self.fin_ensayo.get()) and not(fin_ensayo_interno)):
                         timeN=time.time()
                         time_passed=int(timeN-time_start)
-                        if GPIO.input(ParoEmerg)==False:
+                        if rpiplc.digital_read(ParoEmerg) == 1:
                             self.fin_ensayo.set(True)
                             self.EDTestM1.set("PARO DE ENSAYO: PARO DE EMERGENCIA ACTIVADO")
                             self.Resultado.set("Sin resultado")
@@ -2088,7 +2087,7 @@ class Aplicacion():
                 TOPerror.wait_window()
                 error=True
         if not(error):
-            if GPIO.input(ParoEmerg)==False:
+            if rpiplc.digital_read(ParoEmerg) == 1:
                 TOPerror=tk.Toplevel()
                 TOPerror.geometry('300x105+200+200')
                 TOPerror.title("Error")
