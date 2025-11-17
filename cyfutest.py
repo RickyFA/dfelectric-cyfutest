@@ -38,29 +38,8 @@ ParoEmerg = "I0.1"
 FinEnsayo = "OPTO_IN_1"
 DS18B20 = 8
 
-##################################
-#### Monta Sensor Temperatura ####
-##################################
-try:
-    # Pull up interno para DS18B20 (en lugar de resistencia externa)
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(DS18B20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    # time.sleep(0.1)
-    SENS = W1ThermSensor()
-except Exception as e:
-    print("Unable to initialize DS18B20")
-    print(e)
-
-##################################
-#### Monta objetos en bus I2C ####
-##################################
-try:
-    DATA=Adafruit_ADS1x15.ADS1115()
-except:
-    print("Unable to find I2C bus devices")
-
 ########################
-#### Inizializa IOs ####
+#### Inicializa IOs ####
 ########################
 try:
     rpiplc.init("RPIPLC_V6", "RPIPLC_19R", restart=False)
@@ -75,10 +54,29 @@ try:
     rpiplc.digital_write(BalizaRoja, False)
     rpiplc.digital_write(Fuente, True)
 
-    # time.sleep(0.1)
-
 except:
     print("Unable to load GPIOs")
+
+##################################
+#### Monta Sensor Temperatura ####
+##################################
+try:
+    # Pull up interno para DS18B20 (en lugar de resistencia externa)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(DS18B20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    time.sleep(1)
+    SENS = W1ThermSensor()
+except Exception as e:
+    print("Unable to initialize DS18B20")
+    print(e)
+
+##################################
+#### Monta objetos en bus I2C ####
+##################################
+try:
+    DATA=Adafruit_ADS1x15.ADS1115()
+except:
+    print("Unable to find I2C bus devices")
 
 #######################################################
 #### Define clase Tk Aplicacion como MainRoot ####
@@ -88,8 +86,8 @@ class Aplicacion():
 
     def __init__(self):
         self.root=tk.Tk()
-        # self.root.geometry('1024x550+0+0')
-        self.root.after(100, lambda: self.root.attributes('-fullscreen', True))
+        self.root.geometry('1024x550+0+0')
+        # self.root.after(3000, lambda: self.root.attributes('-fullscreen', True))
         self.root.title('Ensayo de Fusibles Cilíndricos')
 
         #############################################
@@ -295,9 +293,6 @@ class Aplicacion():
         self.root.after(10000,self.update_temperature)
 
 
-
-
-
     def F_EnsayoDirecto(self):
 
         self.EAFrameCargarDatos.place_forget()
@@ -395,8 +390,6 @@ class Aplicacion():
         self.EDEntryTestReport.config(state=tk.DISABLED)
         self.EDButtonTestReport.place(x=470,y=115,width=215,height=50)
         self.EDButtonTestReport.config(state=tk.DISABLED)
-
-
 
         self.EDcorrienteEntry.focus()
         self.F_EDcalcularPos()
@@ -652,13 +645,6 @@ class Aplicacion():
 
     def F_EDstart(self):
 
-        def Lectura_Corriente_NO():             ### FUNCION OBSOLETA / RESERVA ###
-            coef=1.018
-            SENS.write(("C").encode())
-            lectura=SENS.readline().decode("utf-8")
-            lectura=abs(float(lectura))
-            return coef*lectura
-
         def Lectura_Corriente():
             coef=1.02
             try:
@@ -668,12 +654,6 @@ class Aplicacion():
             except:
                 print("Error en Lectura_Corriente()")
                 return self.last_corriente.get()
-
-        def Lectura_CDT_NO():                   ### FUNCION OBSOLETA / RESERVA ###
-            SENS.write(("V").encode())
-            lectura=SENS.readline().decode("utf-8")
-            lectura=abs(float(lectura)/1000.0)
-            return lectura
 
         def Lectura_CDT():
             try:
@@ -1526,13 +1506,6 @@ class Aplicacion():
 
     def F_EAstart(self):
 
-        def Lectura_Corriente_NO():             ### FUNCION OBSOLETA / RESERVA ###
-            coef=1.018
-            SENS.write(("C").encode())
-            lectura=SENS.readline().decode("utf-8")
-            lectura=abs(float(lectura))
-            return coef*lectura
-
         def Lectura_Corriente():
             coef=1.02
             try:
@@ -1542,12 +1515,6 @@ class Aplicacion():
             except:
                 print("Error en Lectura_Corriente()")
                 return self.last_corriente.get()
-
-        def Lectura_CDT_NO():                   ### FUNCION OBSOLETA / RESERVA ###
-            SENS.write(("V").encode())
-            lectura=SENS.readline().decode("utf-8")
-            lectura=abs(float(lectura)/1000.0)
-            return lectura
 
         def Lectura_CDT():
             try:
@@ -2143,34 +2110,11 @@ class Aplicacion():
 
             Ensayar(Ipd,Inf,If,tiempo,tipo)
 
-
-
-
-
-
-
-
-
-
-
-
-
+            
     def F_mainSalir(self):
         GPIO.cleanup()
-        try:
-            SENS.close()
-        except:
-            print("Unable to Quit serial communication")
         self.root.destroy()
 
-
-
-
-
-
-def main():
-    mi_app=Aplicacion()
-    return 0
-
+        
 if __name__=='__main__' :
-    main()
+   mi_app=Aplicacion()
