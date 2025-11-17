@@ -1,0 +1,8 @@
+[Desktop Entry]
+Comment=ejecuta CyFuTest
+Terminal=false
+Name=CyFu Test
+Exec=/usr/bin/python /home/pi/dfelectric-cyfutest/cyfutest.py
+Type=Application
+Icon=/home/pi/dfelectric-cyfutest/icon.png
+StartupNotify=false
