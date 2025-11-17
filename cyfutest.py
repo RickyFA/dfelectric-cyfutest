@@ -13,6 +13,7 @@ import busio
 import RPi.GPIO as GPIO
 import serial
 from librpiplc import rpiplc
+from w1thermsensor import Unit, W1ThermSensor
 
 ########################################################
 #### Rutas a directorios para carga/guarda archivos ####
@@ -21,22 +22,6 @@ path_CargarReferencias="/home/pi/Desktop/Referencias/"
 path_GuardarInformes="/home/pi/Desktop/Test_Reports/"
 #path_CargarReferencias="/mnt/referencias_gg/"
 #path_GuardarInformes="/mnt/testreports/"
-
-##################################
-#### Monta Sensor Temperatura ####
-##################################
-try:
-    SENS=serial.Serial('/dev/ttyACM0',9600,timeout=1)
-except:
-    print("Unable to initialize Serial Communication")
-
-##################################
-#### Monta objetos en bus i2c ####
-##################################
-try:
-    DATA=Adafruit_ADS1x15.ADS1115()
-except:
-    print("Unable to find I2C bus devices")
 
 #####################
 #### Declara IOs ####
@@ -51,6 +36,28 @@ Fuente = "R0.1"
 Microfusibles = "I0.0" 
 ParoEmerg = "I0.1"
 FinEnsayo = "OPTO_IN_1"
+DS18B20 = 8
+
+##################################
+#### Monta Sensor Temperatura ####
+##################################
+try:
+    # Pull up interno para DS18B20 (en lugar de resistencia externa)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(DS18B20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    # time.sleep(0.1)
+    SENS = W1ThermSensor()
+except Exception as e:
+    print("Unable to initialize DS18B20")
+    print(e)
+
+##################################
+#### Monta objetos en bus I2C ####
+##################################
+try:
+    DATA=Adafruit_ADS1x15.ADS1115()
+except:
+    print("Unable to find I2C bus devices")
 
 ########################
 #### Inizializa IOs ####
@@ -68,7 +75,7 @@ try:
     rpiplc.digital_write(BalizaRoja, False)
     rpiplc.digital_write(Fuente, True)
 
-    time.sleep(1)
+    # time.sleep(0.1)
 
 except:
     print("Unable to load GPIOs")
@@ -268,24 +275,23 @@ class Aplicacion():
 
     def update_temperature(self):
         try:
-                SENS.write(('T').encode())
-                temp=SENS.readline().decode("utf-8")
-                temp=float(temp)
-                #print(temp)
-                last_temp=self.Temperatura.get()
-                if last_temp==0.0:
-                        last_temp=temp
-                if temp>(last_temp+0.6):
-                        self.Temperatura.set(last_temp*1.01)
-                if temp<(last_temp-0.6):
-                        self.Temperatura.set(last_temp*0.99)
-                if (temp>(last_temp-0.6)) and (temp<(last_temp+0.6)):
-                        #last_temp=temp
-                        self.Temperatura.set(last_temp)
-                self.TempLabel.configure(text= str("%.1f"%(last_temp)) + u"\u2103")
-        except:
-                print("No temperature data")
-                self.TempLabel.configure(text=("--" + u"\u2103"))
+            temp = SENS.get_temperature()
+            # print(temp)
+            last_temp=self.Temperatura.get()
+            if last_temp==0.0:
+                    last_temp=temp
+            if temp>(last_temp+0.6):
+                    self.Temperatura.set(last_temp*1.01)
+            if temp<(last_temp-0.6):
+                    self.Temperatura.set(last_temp*0.99)
+            if (temp>(last_temp-0.6)) and (temp<(last_temp+0.6)):
+                    #last_temp=temp
+                    self.Temperatura.set(last_temp)
+            self.TempLabel.configure(text= str("%.1f"%(last_temp)) + u"\u2103")
+        except Exception as e:
+            print(e)
+            print("No temperature data")
+            self.TempLabel.configure(text=("--" + u"\u2103"))
         self.root.after(10000,self.update_temperature)
 
 
