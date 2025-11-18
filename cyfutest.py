@@ -3,8 +3,10 @@
 
 import datetime
 import os
+import signal
 import time
 import tkinter as tk
+from sys import exit
 from tkinter import filedialog, font
 
 import board
@@ -43,9 +45,20 @@ DS18B20 = 8
 ########################
 try:
     rpiplc.init("RPIPLC_V6", "RPIPLC_19R", restart=False)
+
+    rpiplc.pin_mode("A0.0", rpiplc.OUTPUT)
+    rpiplc.pin_mode(RelayPd, rpiplc.OUTPUT)
+    rpiplc.pin_mode(RelayNoFus, rpiplc.OUTPUT)
+    rpiplc.pin_mode(RelayFus, rpiplc.OUTPUT)
+    rpiplc.pin_mode(BalizaVerde, rpiplc.OUTPUT)
+    rpiplc.pin_mode(BalizaAmarilla, rpiplc.OUTPUT)
+    rpiplc.pin_mode(BalizaRoja, rpiplc.OUTPUT)
+    rpiplc.pin_mode(Fuente, rpiplc.OUTPUT)
+    rpiplc.pin_mode(Microfusibles, rpiplc.INPUT)
+    rpiplc.pin_mode(ParoEmerg, rpiplc.INPUT)
+    rpiplc.pin_mode(FinEnsayo, rpiplc.INPUT)
     
     rpiplc.analog_write("A0.0", 0) # Consigna fuente de corriente
-    
     rpiplc.digital_write(RelayPd, False)    
     rpiplc.digital_write(RelayNoFus, False)
     rpiplc.digital_write(RelayFus, False)
@@ -90,8 +103,8 @@ class Aplicacion():
 
     def __init__(self):
         self.root=tk.Tk()
-        self.root.geometry('1024x550+0+0')
-        # self.root.after(3000, lambda: self.root.attributes('-fullscreen', True))
+        # self.root.geometry('1024x550+0+0')
+        self.root.after(3000, lambda: self.root.attributes('-fullscreen', True))
         self.root.title('Ensayo de Fusibles Cilíndricos')
 
         #############################################
@@ -2122,9 +2135,34 @@ class Aplicacion():
 
             
     def F_mainSalir(self):
+        rpiplc.digital_write(RelayPd, False)    
+        rpiplc.digital_write(RelayNoFus, False)
+        rpiplc.digital_write(RelayFus, False)
+        rpiplc.digital_write(BalizaVerde, False)
+        rpiplc.digital_write(BalizaAmarilla, False)
+        rpiplc.digital_write(BalizaRoja, False)
+        rpiplc.digital_write(Fuente, False)
         GPIO.cleanup()
         self.root.destroy()
 
+
+ 
+def salida(signum, frame):
+    rpiplc.digital_write(RelayPd, False)    
+    rpiplc.digital_write(RelayNoFus, False)
+    rpiplc.digital_write(RelayFus, False)
+    rpiplc.digital_write(BalizaVerde, False)
+    rpiplc.digital_write(BalizaAmarilla, False)
+    rpiplc.digital_write(BalizaRoja, False)
+    rpiplc.digital_write(Fuente, False)
+    GPIO.cleanup()
+    exit()
         
 if __name__=='__main__' :
-   mi_app=Aplicacion()
+
+    # Señales de salida
+    signal.signal(signal.SIGTERM, salida)
+    signal.signal(signal.SIGINT, salida)
+    signal.signal(signal.SIGHUP, salida)
+    
+    mi_app=Aplicacion()
