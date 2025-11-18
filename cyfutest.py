@@ -34,7 +34,7 @@ BalizaAmarilla = "R0.7"
 BalizaRoja = "R0.6"
 Fuente = "R0.1"
 Microfusibles = "I0.0" 
-ParoEmerg = "I0.1"
+ParoEmerg = "I0.2"
 FinEnsayo = "OPTO_IN_1"
 DS18B20 = 8
 
@@ -1358,29 +1358,26 @@ class Aplicacion():
             file.write("REFERENCIA: "+str(self.EAReferencia.get())+"\r\n")
             if (self.EAOF.get() != ("")):
                 file.write("ORDEN DE FABRICACION: " + self.EAOF.get() + "\r\n")
-        file.write(((self.EDTestM1.get()).replace("\n","\r\n")+"\r\n"+((self.EDTestM2.get())).replace("\n","\r\n")).encode('utf-8'))
-                #if (self.maintesttype==2):
-                #    file.write(self.EAReferencia.get().encode('utf-8'))
+        file.write(((self.EDTestM1.get()).replace("\n","\r\n")+"\r\n"+((self.EDTestM2.get())).replace("\n","\r\n")))
         file.write("\r\n"+"Fecha y hora de ensayo: "+time.strftime('%d/%m/%y') +" - "+ time.strftime('%H:%M'))
         try:
             file.write("\r\n"+"Temperatura ambiental: "+str("%.1f"%(self.Temperatura.get()))+"\xb0"+"C\r\n")
-                    #file.write("\n"+"Temperatura ambiental: "+str(self.Temperatura.get())+"C\r\n")
         except:
             file.write("\r\n"+"Temperatura ambiental: SIN DATOS\r\n")
         
         if (self.EAResM1.get() != ("")):
             file.write("\r\nResistencia Muestra 1: " + self.EAResM1.get() + "mOhm")
         if (self.EDTestM3.get() != ("")):
-            file.write("\r\n"+((self.EDTestM3.get()).replace("\n","\r\n")).encode('utf-8')+"\r\n")
+            file.write("\r\n"+((self.EDTestM3.get()).replace("\n","\r\n")) + "\r\n")
         if (self.EAResM2.get() != ("")):
             file.write("\r\nResistencia Muestra 2: " + self.EAResM2.get() + "mOhm")        
         if (self.EDTestM4.get()!=""):
-            file.write("\r\n"+((self.EDTestM4.get()).replace("\n","\r\n")).encode('utf-8')+"\r\n")
+            file.write("\r\n"+((self.EDTestM4.get()).replace("\n","\r\n")) + "\r\n")
         if (self.EAResM3.get() != ("")):
             file.write("\r\nResistencia Muestra 3: " + self.EAResM3.get() + "mOhm")        
         if (self.EDTestM5.get()!=""):
-            file.write("\r\n"+((self.EDTestM5.get()).replace("\n","\r\n")).encode('utf-8')+"\r\n")
-        file.write("\r\n" + "COMENTARIO: " + ((self.EDEntryTestReport.get("1.0",tk.END)).replace("\n","\r\n")).encode('utf-8'))
+            file.write("\r\n"+((self.EDTestM5.get()).replace("\n","\r\n")) + "\r\n")
+        file.write("\r\n" + "COMENTARIO: " + ((self.EDEntryTestReport.get("1.0",tk.END)).replace("\n","\r\n")))
         file.close()
 
         rpiplc.analog_write("A0.0", 0)
