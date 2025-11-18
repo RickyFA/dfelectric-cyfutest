@@ -7,11 +7,11 @@ import time
 import tkinter as tk
 from tkinter import filedialog, font
 
-import adafruit_ads1x15.ads1115
 import board
 import busio
 import RPi.GPIO as GPIO
 import serial
+from adafruit_ads1x15 import ADS1015, AnalogIn, ads1x15
 from librpiplc import rpiplc
 from w1thermsensor import Unit, W1ThermSensor
 
@@ -74,9 +74,13 @@ except Exception as e:
 #### Monta objetos en bus I2C ####
 ##################################
 try:
-    DATA=Adafruit_ADS1x15.ADS1115()
-except:
-    print("Unable to find I2C bus devices")
+    i2c = board.I2C()
+    ads = ADS1015(i2c)
+    SHUNT = AnalogIn(ads, ads1x15.Pin.A0, ads1x15.Pin.A1) # V_A0 - V_A1 
+    CDT = AnalogIn(ads, ads1x15.Pin.A2, ads1x15.Pin.A3) # V_A2 - V_A3
+except Exception as e:
+    print("Unable to initialize ADS1115")
+    print(e)
 
 #######################################################
 #### Define clase Tk Aplicacion como MainRoot ####
@@ -643,7 +647,8 @@ class Aplicacion():
         def Lectura_Corriente():
             coef=1.02
             try:
-                lectura=(float(abs(DATA.read_adc_difference(0,gain=16)))/65535.0)*2.0*0.256*200.0/0.06
+                ads.gain = 16
+                lectura=((SHUNT.value+32768)/65535.0)*2.0*0.256*200.0/0.06
                 self.last_corriente.set(coef*lectura)
                 return coef*lectura
             except:
@@ -652,22 +657,28 @@ class Aplicacion():
 
         def Lectura_CDT():
             try:
-                lectura=(float(abs(DATA.read_adc_difference(3,gain=2/3)))/65535.0)*2.0*6.144
+                ads.gain = 2/3
+                lectura=((CDT.value+32768)/65535.0)*2.0*6.144
                 time.sleep(0.1)
                 if (lectura<8.192):
-                    lectura=(float(abs(DATA.read_adc_difference(3,gain=1)))/65535.0)*2.0*4.096
+                    ads.gain = 1
+                    lectura=((CDT.value+32768)/65535.0)*2.0*4.096
                     time.sleep(0.1)
                     if (lectura<4.096):
-                        lectura=(float(abs(DATA.read_adc_difference(3,gain=2)))/65535.0)*2.0*2.048
+                        ads.gain = 2
+                        lectura=((CDT.value+32768)/65535.0)*2.0*2.048
                         time.sleep(0.1)
                         if (lectura<2.048):
-                            lectura=(float(abs(DATA.read_adc_difference(3,gain=4)))/65535.0)*2.0*1.024
+                            ads.gain = 4
+                            lectura=((CDT.value+32768)/65535.0)*2.0*1.024
                             time.sleep(0.1)
                             if (lectura<1.024):
-                                lectura=(float(abs(DATA.read_adc_difference(3,gain=8)))/65535.0)*2.0*0.512
+                                ads.gain = 8
+                                lectura=((CDT.value+32768)/65535.0)*2.0*0.512
                                 time.sleep(0.1)
                                 if (lectura<0.512):
-                                    lectura=(float(abs(DATA.read_adc_difference(3,gain=16)))/65535.0)*2.0*0.256
+                                    ads.gain = 16
+                                    lectura=((CDT.value+32768)/65535.0)*2.0*0.256
                 return lectura
             except:
                 print("Error en Lectura_CDT()")
@@ -1504,7 +1515,8 @@ class Aplicacion():
         def Lectura_Corriente():
             coef=1.02
             try:
-                lectura=(float(abs(DATA.read_adc_difference(0,gain=16)))/65535.0)*2.0*0.256*200.0/0.06
+                ads.gain = 16
+                lectura=((SHUNT.value+32768)/65535.0)*2.0*0.256*200.0/0.06
                 self.last_corriente.set(coef*lectura)
                 return coef*lectura
             except:
@@ -1513,22 +1525,28 @@ class Aplicacion():
 
         def Lectura_CDT():
             try:
-                lectura=(float(abs(DATA.read_adc_difference(3,gain=2/3)))/65535.0)*2.0*6.144
+                ads.gain = 2/3
+                lectura=((CDT.value+32768)/65535.0)*2.0*6.144
                 time.sleep(0.1)
                 if (lectura<8.192):
-                    lectura=(float(abs(DATA.read_adc_difference(3,gain=1)))/65535.0)*2.0*4.096
+                    ads.gain = 1
+                    lectura=((CDT.value+32768)/65535.0)*2.0*4.096
                     time.sleep(0.1)
                     if (lectura<4.096):
-                        lectura=(float(abs(DATA.read_adc_difference(3,gain=2)))/65535.0)*2.0*2.048
+                        ads.gain = 2
+                        lectura=((CDT.value+32768)/65535.0)*2.0*2.048
                         time.sleep(0.1)
                         if (lectura<2.048):
-                            lectura=(float(abs(DATA.read_adc_difference(3,gain=4)))/65535.0)*2.0*1.024
+                            ads.gain = 4
+                            lectura=((CDT.value+32768)/65535.0)*2.0*1.024
                             time.sleep(0.1)
                             if (lectura<1.024):
-                                lectura=(float(abs(DATA.read_adc_difference(3,gain=8)))/65535.0)*2.0*0.512
+                                ads.gain = 8
+                                lectura=((CDT.value+32768)/65535.0)*2.0*0.512
                                 time.sleep(0.1)
                                 if (lectura<0.512):
-                                    lectura=(float(abs(DATA.read_adc_difference(3,gain=16)))/65535.0)*2.0*0.256
+                                    ads.gain = 16
+                                    lectura=((CDT.value+32768)/65535.0)*2.0*0.256
                 return lectura
             except:
                 print("Error en Lectura_CDT()")
