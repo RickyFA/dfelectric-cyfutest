@@ -103,8 +103,10 @@ class Aplicacion():
 
     def __init__(self):
         self.root=tk.Tk()
+        
         # self.root.geometry('1024x550+0+0')
-        self.root.after(3000, lambda: self.root.attributes('-fullscreen', True))
+        self.root.after(1000, lambda: self.root.attributes("-zoomed", True))
+        # self.root.after(3000, lambda: self.root.attributes('-fullscreen', True))
         self.root.title('Ensayo de Fusibles Cilíndricos')
 
         #############################################
@@ -1076,12 +1078,12 @@ class Aplicacion():
             if self.EDTestM1.get()==("...ENSAYANDO..."):
                 self.EDTestM1.set("ENSAYO FINALIZADO")
             self.EDStopButton.config(state=tk.DISABLED)
-            self.mainbutton_ensayodirecto.config(state=tk.ACTIVE)
-            self.mainbutton_ensayoautomatico.config(state=tk.ACTIVE)
-            self.mainbutton_salir.config(state=tk.ACTIVE)
-            self.mainbutton_limpiarDatos.config(state=tk.ACTIVE)
+            self.mainbutton_ensayodirecto.config(state=tk.NORMAL)
+            self.mainbutton_ensayoautomatico.config(state=tk.NORMAL)
+            self.mainbutton_salir.config(state=tk.NORMAL)
+            self.mainbutton_limpiarDatos.config(state=tk.NORMAL)
             self.EDEntryTestReport.config(state=tk.NORMAL)
-            self.EDButtonTestReport.config(state=tk.ACTIVE)
+            self.EDButtonTestReport.config(state=tk.NORMAL)
 
         ############################################
         #### FIN DEFINICIONES FUNCIONES INTERNAS ###
@@ -1244,7 +1246,7 @@ class Aplicacion():
             self.EDcorrienteEntry.config(state=tk.DISABLED)
 
             self.EDStartButton.config(state=tk.DISABLED)
-            self.EDStopButton.config(state=tk.ACTIVE)
+            self.EDStopButton.config(state=tk.NORMAL)
             self.mainbutton_ensayodirecto.config(state=tk.DISABLED)
             self.mainbutton_ensayoautomatico.config(state=tk.DISABLED)
             self.mainbutton_limpiarDatos.config(state=tk.DISABLED)
@@ -1329,14 +1331,14 @@ class Aplicacion():
             rpiplc.digital_write(BalizaRoja, False)
             rpiplc.analog_write("A0.0", 0)
             self.EDStopButton.config(state=tk.DISABLED)
-            self.mainbutton_ensayodirecto.config(state=tk.ACTIVE)
-            self.mainbutton_ensayoautomatico.config(state=tk.ACTIVE)
-            self.mainbutton_salir.config(state=tk.ACTIVE)
-            self.mainbutton_limpiarDatos.config(state=tk.ACTIVE)
+            self.mainbutton_ensayodirecto.config(state=tk.NORMAL)
+            self.mainbutton_ensayoautomatico.config(state=tk.NORMAL)
+            self.mainbutton_salir.config(state=tk.NORMAL)
+            self.mainbutton_limpiarDatos.config(state=tk.NORMAL)
             if self.EDTestM1.get()==("...ENSAYANDO..."):
                 self.EDTestM1.set("ENSAYO PARADO POR EL USUARIO")
             self.EDEntryTestReport.config(state=tk.NORMAL)
-            self.EDButtonTestReport.config(state=tk.ACTIVE)
+            self.EDButtonTestReport.config(state=tk.NORMAL)
             self.fin_ensayo.set(True)
             if ((self.EDensayo.get()==2) or (self.EDensayo.get()==3)):
                 self.Resultado.set("SIN RESULTADO")
@@ -1950,12 +1952,12 @@ class Aplicacion():
             if self.EDTestM1.get()==("...ENSAYANDO..."):
                 self.EDTestM1.set("ENSAYO FINALIZADO")
             self.EDStopButton.config(state=tk.DISABLED)
-            self.mainbutton_ensayodirecto.config(state=tk.ACTIVE)
-            self.mainbutton_ensayoautomatico.config(state=tk.ACTIVE)
-            self.mainbutton_salir.config(state=tk.ACTIVE)
-            self.mainbutton_limpiarDatos.config(state=tk.ACTIVE)
+            self.mainbutton_ensayodirecto.config(state=tk.NORMAL)
+            self.mainbutton_ensayoautomatico.config(state=tk.NORMAL)
+            self.mainbutton_salir.config(state=tk.NORMAL)
+            self.mainbutton_limpiarDatos.config(state=tk.NORMAL)
             self.EDEntryTestReport.config(state=tk.NORMAL)
-            self.EDButtonTestReport.config(state=tk.ACTIVE)
+            self.EDButtonTestReport.config(state=tk.NORMAL)
 
         #############################################
         #### FIN DEFINICIONES FUNCIONES INTERNAS ####
