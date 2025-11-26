@@ -31,8 +31,8 @@ path_GuardarInformes="/home/pi/Desktop/Test_Reports/"
 RelayPd = "R0.7"
 RelayNoFus = "R0.6"
 RelayFus = "R0.5"
-BalizaVerde = "R0.2"
-BalizaAmarilla = "R0.1"
+BalizaVerde = "R0.1"
+BalizaAmarilla = "R0.2"
 BalizaRoja = "R0.8"
 Fuente = "R0.4"
 Microfusibles = "I0.0" 
@@ -105,8 +105,8 @@ class Aplicacion():
         self.root=tk.Tk()
         
         # self.root.geometry('1024x550+0+0')
-        self.root.after(1000, lambda: self.root.attributes("-zoomed", True))
-        # self.root.after(3000, lambda: self.root.attributes('-fullscreen', True))
+        # self.root.after(1000, lambda: self.root.attributes("-zoomed", True))
+        self.root.after(2000, lambda: self.root.attributes('-fullscreen', True))
         self.root.title('Ensayo de Fusibles Cilíndricos')
 
         #############################################
