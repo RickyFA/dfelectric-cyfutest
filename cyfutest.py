@@ -28,16 +28,16 @@ path_GuardarInformes="/home/pi/Desktop/Test_Reports/"
 #####################
 #### Declara IOs ####
 #####################
-RelayPd = "R0.5"
-RelayNoFus = "R0.4"
-RelayFus = "R0.3"
-BalizaVerde = "R0.8"
-BalizaAmarilla = "R0.7"
-BalizaRoja = "R0.6"
-Fuente = "R0.1"
+RelayPd = "R0.7"
+RelayNoFus = "R0.6"
+RelayFus = "R0.5"
+BalizaVerde = "R0.2"
+BalizaAmarilla = "R0.1"
+BalizaRoja = "R0.8"
+Fuente = "R0.4"
 Microfusibles = "I0.0" 
 ParoEmerg = "I0.2"
-FinEnsayo = "OPTO_IN_1"
+FinEnsayo = "I0.3"
 DS18B20 = 8
 
 ########################
