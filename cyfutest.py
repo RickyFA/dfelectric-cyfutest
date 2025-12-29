@@ -73,16 +73,21 @@ except:
 ##################################
 #### Monta Sensor Temperatura ####
 ##################################
-try:
-    # Pull up interno para DS18B20 (en lugar de resistencia externa)
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(DS18B20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    time.sleep(1)
-    SENS = W1ThermSensor()
-except Exception as e:
-    print("Unable to initialize DS18B20")
-    print(e)
 
+for i in range(5): #5 intentos
+    try:
+        # Pull up interno para DS18B20 (en lugar de resistencia externa)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(DS18B20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        time.sleep(5)
+        SENS = W1ThermSensor()
+        break
+    except Exception as e:
+        print("Unable to initialize DS18B20")
+        print(e)
+    time.sleep(1)
+
+        
 ##################################
 #### Monta objetos en bus I2C ####
 ##################################
