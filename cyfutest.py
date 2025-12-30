@@ -88,23 +88,6 @@ try:
 except:
     print("Unable to load GPIOs")
 
-##################################
-#### Monta Sensor Temperatura ####
-##################################
-
-for i in range(5): #5 intentos
-    try:
-        # Pull up interno para DS18B20 (en lugar de resistencia externa)
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(DS18B20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        time.sleep(5)
-        SENS = W1ThermSensor()
-        break
-    except Exception as e:
-        print("Unable to initialize DS18B20")
-        print(e)
-    time.sleep(1)
-
         
 ##################################
 #### Monta objetos en bus I2C ####
@@ -117,41 +100,79 @@ try:
 except Exception as e:
     print("Unable to initialize ADS1115")
     print(e)
-    exit()
+    salida()
+
+##################################
+#### Monta Sensor Temperatura ####
+##################################
+
+temp_det = False
+for i in range(5): # 5 intentos
+    try:
+        # Pull up interno para DS18B20 (en lugar de resistencia externa)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(DS18B20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        time.sleep(1)
+        SENS = W1ThermSensor()
+        temp_det = True
+        break
+    except Exception as e:
+        print("Unable to initialize DS18B20")
+    
+if not temp_det:
+    salida()
 
 ##################################
 ####   Comunicación con PSU   ####
 ##################################
 
+for _ in range(50): # Espera el puerto
+    if os.path.exists(PUERTO_FUENTE):
+        break
+    time.sleep(0.1)
+
 try:
-    time.sleep(2)
+    time.sleep(6)
     psu = SorensenXG(PUERTO_FUENTE)
     psu.connect()
     if (len(psu.identify()) == 0):
         raise Exception("Could not communicate with PSU")
 except Exception as e:
-    print("Unable to initialise PSU")
     print(e)
-    exit()
+    salida()
 
 #######################################################
-#### Define clase Tk Aplicacion como MainRoot ####
+####    Define clase Tk Aplicacion como MainRoot   ####
 #######################################################
 
 class Aplicacion():
 
     def __init__(self):
         self.root=tk.Tk()
-        
-        # self.root.geometry('1024x550+0+0')
-        # self.root.after(1000, lambda: self.root.attributes("-zoomed", True))
-        self.root.after(2000, lambda: self.root.attributes('-fullscreen', True))
-        self.root.title('Ensayo de Fusibles Cilíndricos')
 
+        # Ventana
+        # self.root.tk.call("tk", "scaling", 1.1) # Escalado
+        # self.root.geometry('1024x550+0+0')  # Tamaño fijo
+        self.root.after(2000, lambda: self.root.attributes('-fullscreen', True)) # Pantalla completa
+        self.root.title('Ensayo de Fusibles Cilíndricos') # Título
+
+
+        #############################################
+        ####         Fuente por defecto          ####
+        #############################################
+        my_font_family = "FreeSans"
+        my_font_size = 10
+
+        # Change Tk named fonts
+        for name in ("TkDefaultFont", "TkTextFont", "TkFixedFont",
+                     "TkMenuFont", "TkHeadingFont", "TkCaptionFont",
+                     "TkSmallCaptionFont"):
+            f = font.nametofont(name)
+            f.configure(family=my_font_family, size=my_font_size)
+        
         #############################################
         #### Declara tipos de fuente not default ####
         #############################################
-
         ButtonsFont1=tk.font.Font(size=26,weight=tk.font.BOLD)
         ButtonsFont2=tk.font.Font(size=14)
         ButtonsFont3=tk.font.Font(size=12)
