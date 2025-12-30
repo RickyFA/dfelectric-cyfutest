@@ -700,6 +700,7 @@ class Aplicacion():
             coef=1.02
             try:
                 ads.gain = 16
+                time.sleep(0.01)
                 lectura=((SHUNT.value)/65535.0)*2.0*0.256*200.0/0.06
                 self.last_corriente.set(coef*lectura)
                 return coef*lectura
@@ -710,26 +711,32 @@ class Aplicacion():
         def Lectura_CDT():
             try:
                 ads.gain = 2/3
+                time.sleep(0.01)
                 lectura=((CDT.value)/65535.0)*2.0*6.144
                 time.sleep(0.1)
                 if (lectura<8.192):
                     ads.gain = 1
+                    time.sleep(0.01)
                     lectura=((CDT.value)/65535.0)*2.0*4.096
                     time.sleep(0.1)
                     if (lectura<4.096):
                         ads.gain = 2
+                        time.sleep(0.01)
                         lectura=((CDT.value)/65535.0)*2.0*2.048
                         time.sleep(0.1)
                         if (lectura<2.048):
                             ads.gain = 4
+                            time.sleep(0.01)
                             lectura=((CDT.value)/65535.0)*2.0*1.024
                             time.sleep(0.1)
                             if (lectura<1.024):
                                 ads.gain = 8
+                                time.sleep(0.01)
                                 lectura=((CDT.value)/65535.0)*2.0*0.512
                                 time.sleep(0.1)
                                 if (lectura<0.512):
                                     ads.gain = 16
+                                    time.sleep(0.01)
                                     lectura=((CDT.value)/65535.0)*2.0*0.256
                 return lectura
             except:
@@ -1570,6 +1577,7 @@ class Aplicacion():
             coef=1.02
             try:
                 ads.gain = 16
+                time.sleep(0.01)
                 lectura=((SHUNT.value)/65535.0)*2.0*0.256*200.0/0.06
                 self.last_corriente.set(coef*lectura)
                 return coef*lectura
@@ -1580,26 +1588,32 @@ class Aplicacion():
         def Lectura_CDT():
             try:
                 ads.gain = 2/3
+                time.sleep(0.01)
                 lectura=((CDT.value)/65535.0)*2.0*6.144
                 time.sleep(0.1)
                 if (lectura<8.192):
                     ads.gain = 1
+                    time.sleep(0.01)
                     lectura=((CDT.value)/65535.0)*2.0*4.096
                     time.sleep(0.1)
                     if (lectura<4.096):
                         ads.gain = 2
+                        time.sleep(0.01)
                         lectura=((CDT.value)/65535.0)*2.0*2.048
                         time.sleep(0.1)
                         if (lectura<2.048):
                             ads.gain = 4
+                            time.sleep(0.01)
                             lectura=((CDT.value)/65535.0)*2.0*1.024
                             time.sleep(0.1)
                             if (lectura<1.024):
                                 ads.gain = 8
+                                time.sleep(0.01)
                                 lectura=((CDT.value)/65535.0)*2.0*0.512
                                 time.sleep(0.1)
                                 if (lectura<0.512):
                                     ads.gain = 16
+                                    time.sleep(0.01)
                                     lectura=((CDT.value)/65535.0)*2.0*0.256
                 return lectura
             except:
