@@ -17,6 +17,8 @@ from adafruit_ads1x15 import ADS1015, AnalogIn, ads1x15
 from librpiplc import rpiplc
 from w1thermsensor import Unit, W1ThermSensor
 
+from SorensenXG import SorensenXG
+
 ########################################################
 #### Rutas a directorios para carga/guarda archivos ####
 ########################################################
@@ -39,6 +41,7 @@ Microfusibles = "I0.0"
 ParoEmerg = "I0.2"
 FinEnsayo = "I0.3"
 DS18B20 = 8
+PUERTO_FUENTE = "/dev/ttyUSB0"
 
 ########################
 #### Inicializa IOs ####
@@ -46,7 +49,6 @@ DS18B20 = 8
 try:
     rpiplc.init("RPIPLC_V6", "RPIPLC_19R", restart=False)
 
-    rpiplc.pin_mode("A0.0", rpiplc.OUTPUT)
     rpiplc.pin_mode(RelayPd, rpiplc.OUTPUT)
     rpiplc.pin_mode(RelayNoFus, rpiplc.OUTPUT)
     rpiplc.pin_mode(RelayFus, rpiplc.OUTPUT)
@@ -58,7 +60,6 @@ try:
     rpiplc.pin_mode(ParoEmerg, rpiplc.INPUT)
     rpiplc.pin_mode(FinEnsayo, rpiplc.INPUT)
     
-    rpiplc.analog_write("A0.0", 0) # Consigna fuente de corriente
     rpiplc.digital_write(RelayPd, False)    
     rpiplc.digital_write(RelayNoFus, False)
     rpiplc.digital_write(RelayFus, False)
@@ -99,6 +100,22 @@ try:
 except Exception as e:
     print("Unable to initialize ADS1115")
     print(e)
+    exit()
+
+##################################
+####   Comunicación con PSU   ####
+##################################
+
+try:
+    time.sleep(2)
+    psu = SorensenXG(PUERTO_FUENTE)
+    psu.connect()
+    if (len(psu.identify()) == 0):
+        raise Exception("Could not communicate with PSU")
+except Exception as e:
+    print("Unable to initialise PSU")
+    print(e)
+    exit()
 
 #######################################################
 #### Define clase Tk Aplicacion como MainRoot ####
@@ -582,10 +599,8 @@ class Aplicacion():
             rpiplc.digital_write(BalizaVerde, True)
             rpiplc.digital_write(BalizaAmarilla, False)
             rpiplc.digital_write(BalizaRoja, False)
-            try:
-                rpiplc.analog_write("A0.0", 0)
-            except:
-                print("Error en rpiplc.analog_write(\"A0.0\", 0)")
+
+            psu.set_current_limit(0)
 
 
         TOPMensaje=tk.Toplevel()
@@ -668,7 +683,7 @@ class Aplicacion():
             coef=1.02
             try:
                 ads.gain = 16
-                lectura=((SHUNT.value+32768)/65535.0)*2.0*0.256*200.0/0.06
+                lectura=((SHUNT.value)/65535.0)*2.0*0.256*200.0/0.06
                 self.last_corriente.set(coef*lectura)
                 return coef*lectura
             except:
@@ -678,27 +693,27 @@ class Aplicacion():
         def Lectura_CDT():
             try:
                 ads.gain = 2/3
-                lectura=((CDT.value+32768)/65535.0)*2.0*6.144
+                lectura=((CDT.value)/65535.0)*2.0*6.144
                 time.sleep(0.1)
                 if (lectura<8.192):
                     ads.gain = 1
-                    lectura=((CDT.value+32768)/65535.0)*2.0*4.096
+                    lectura=((CDT.value)/65535.0)*2.0*4.096
                     time.sleep(0.1)
                     if (lectura<4.096):
                         ads.gain = 2
-                        lectura=((CDT.value+32768)/65535.0)*2.0*2.048
+                        lectura=((CDT.value)/65535.0)*2.0*2.048
                         time.sleep(0.1)
                         if (lectura<2.048):
                             ads.gain = 4
-                            lectura=((CDT.value+32768)/65535.0)*2.0*1.024
+                            lectura=((CDT.value)/65535.0)*2.0*1.024
                             time.sleep(0.1)
                             if (lectura<1.024):
                                 ads.gain = 8
-                                lectura=((CDT.value+32768)/65535.0)*2.0*0.512
+                                lectura=((CDT.value)/65535.0)*2.0*0.512
                                 time.sleep(0.1)
                                 if (lectura<0.512):
                                     ads.gain = 16
-                                    lectura=((CDT.value+32768)/65535.0)*2.0*0.256
+                                    lectura=((CDT.value)/65535.0)*2.0*0.256
                 return lectura
             except:
                 print("Error en Lectura_CDT()")
@@ -710,9 +725,8 @@ class Aplicacion():
                 val=220
             if val<0:
                 val=0
-            val=int(float(val)/220.0*2048.0)
             try:
-                rpiplc.analog_write("A0.0", val)
+                psu.set_current_limit(val)
                 print("CORRIENTE CONSIGNA : val="+str(val))
             except:
                 print("Error en Corriente_Consigna()")
@@ -1166,6 +1180,7 @@ class Aplicacion():
                 TOPerror.wait_window()
                 error=True
         if not(error):
+
             if corriente<2:
                 TOPerror=tk.Toplevel()
                 TOPerror.geometry('300x105+200+200')
@@ -1232,6 +1247,11 @@ class Aplicacion():
                 error=True
 
         if not(error):
+
+            psu.set_voltage_limit(5.0)
+            psu.set_current_limit(0.2)
+            time.sleep(1)
+            
             if rpiplc.digital_read(FinEnsayo) == 0:
                 TOPerror=tk.Toplevel()
                 TOPerror.geometry('350x105+200+200')
@@ -1334,7 +1354,7 @@ class Aplicacion():
             rpiplc.digital_write(BalizaVerde, True)
             rpiplc.digital_write(BalizaAmarilla, False)
             rpiplc.digital_write(BalizaRoja, False)
-            rpiplc.analog_write("A0.0", 0)
+            psu.set_current_limit(0)
             self.EDStopButton.config(state=tk.DISABLED)
             self.mainbutton_ensayodirecto.config(state=tk.NORMAL)
             self.mainbutton_ensayoautomatico.config(state=tk.NORMAL)
@@ -1400,7 +1420,7 @@ class Aplicacion():
         file.write("\r\n" + "COMENTARIO: " + ((self.EDEntryTestReport.get("1.0",tk.END)).replace("\n","\r\n")))
         file.close()
 
-        rpiplc.analog_write("A0.0", 0)
+        psu.set_current_limit(0)
         rpiplc.digital_write(BalizaVerde, True)
         rpiplc.digital_write(BalizaAmarilla, False)
         rpiplc.digital_write(BalizaRoja, False)
@@ -1533,7 +1553,7 @@ class Aplicacion():
             coef=1.02
             try:
                 ads.gain = 16
-                lectura=((SHUNT.value+32768)/65535.0)*2.0*0.256*200.0/0.06
+                lectura=((SHUNT.value)/65535.0)*2.0*0.256*200.0/0.06
                 self.last_corriente.set(coef*lectura)
                 return coef*lectura
             except:
@@ -1543,27 +1563,27 @@ class Aplicacion():
         def Lectura_CDT():
             try:
                 ads.gain = 2/3
-                lectura=((CDT.value+32768)/65535.0)*2.0*6.144
+                lectura=((CDT.value)/65535.0)*2.0*6.144
                 time.sleep(0.1)
                 if (lectura<8.192):
                     ads.gain = 1
-                    lectura=((CDT.value+32768)/65535.0)*2.0*4.096
+                    lectura=((CDT.value)/65535.0)*2.0*4.096
                     time.sleep(0.1)
                     if (lectura<4.096):
                         ads.gain = 2
-                        lectura=((CDT.value+32768)/65535.0)*2.0*2.048
+                        lectura=((CDT.value)/65535.0)*2.0*2.048
                         time.sleep(0.1)
                         if (lectura<2.048):
                             ads.gain = 4
-                            lectura=((CDT.value+32768)/65535.0)*2.0*1.024
+                            lectura=((CDT.value)/65535.0)*2.0*1.024
                             time.sleep(0.1)
                             if (lectura<1.024):
                                 ads.gain = 8
-                                lectura=((CDT.value+32768)/65535.0)*2.0*0.512
+                                lectura=((CDT.value)/65535.0)*2.0*0.512
                                 time.sleep(0.1)
                                 if (lectura<0.512):
                                     ads.gain = 16
-                                    lectura=((CDT.value+32768)/65535.0)*2.0*0.256
+                                    lectura=((CDT.value)/65535.0)*2.0*0.256
                 return lectura
             except:
                 print("Error en Lectura_CDT()")
@@ -1575,9 +1595,8 @@ class Aplicacion():
                 val=220
             if val<0:
                 val=0
-            val=int(float(val)/220.0*2048.0)
             try:
-                rpiplc.analog_write("A0.0", val)
+                psu.set_current_limit(val)
                 print("CORRIENTE CONSIGNA : val="+str(val))
             except:
                 print("Error en Corriente_Consigna()")
@@ -2107,6 +2126,11 @@ class Aplicacion():
                 error=True
 
         if not(error):
+
+            psu.set_voltage_limit(5.0)
+            psu.set_current_limit(0.2)
+            time.sleep(1)
+            
             if rpiplc.digital_read(FinEnsayo) == 0:
                 TOPerror=tk.Toplevel()
                 TOPerror.geometry('350x105+200+200')
