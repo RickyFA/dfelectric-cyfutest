@@ -43,6 +43,23 @@ FinEnsayo = "I0.3"
 DS18B20 = 8
 PUERTO_FUENTE = "/dev/ttyUSB0"
 
+
+########################
+#### Función Salida ####
+########################
+
+def salida():
+    rpiplc.digital_write(RelayPd, False)    
+    rpiplc.digital_write(RelayNoFus, False)
+    rpiplc.digital_write(RelayFus, False)
+    rpiplc.digital_write(BalizaVerde, False)
+    rpiplc.digital_write(BalizaAmarilla, False)
+    rpiplc.digital_write(BalizaRoja, False)
+    rpiplc.digital_write(Fuente, False)
+    GPIO.cleanup()
+    exit()
+
+
 ########################
 #### Inicializa IOs ####
 ########################
@@ -2166,34 +2183,19 @@ class Aplicacion():
 
             
     def F_mainSalir(self):
-        rpiplc.digital_write(RelayPd, False)    
-        rpiplc.digital_write(RelayNoFus, False)
-        rpiplc.digital_write(RelayFus, False)
-        rpiplc.digital_write(BalizaVerde, False)
-        rpiplc.digital_write(BalizaAmarilla, False)
-        rpiplc.digital_write(BalizaRoja, False)
-        rpiplc.digital_write(Fuente, False)
-        GPIO.cleanup()
         self.root.destroy()
+        salida()
 
 
- 
-def salida(signum, frame):
-    rpiplc.digital_write(RelayPd, False)    
-    rpiplc.digital_write(RelayNoFus, False)
-    rpiplc.digital_write(RelayFus, False)
-    rpiplc.digital_write(BalizaVerde, False)
-    rpiplc.digital_write(BalizaAmarilla, False)
-    rpiplc.digital_write(BalizaRoja, False)
-    rpiplc.digital_write(Fuente, False)
-    GPIO.cleanup()
-    exit()
-        
+def salida_señal(signum, frame):
+    salida()
+
+
 if __name__=='__main__' :
 
     # Señales de salida
-    signal.signal(signal.SIGTERM, salida)
-    signal.signal(signal.SIGINT, salida)
-    signal.signal(signal.SIGHUP, salida)
+    signal.signal(signal.SIGTERM, salida_señal)
+    signal.signal(signal.SIGINT, salida_señal)
+    signal.signal(signal.SIGHUP, salida_señal)
     
     mi_app=Aplicacion()
