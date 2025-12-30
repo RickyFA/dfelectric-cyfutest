@@ -600,7 +600,7 @@ class Aplicacion():
             rpiplc.digital_write(BalizaAmarilla, False)
             rpiplc.digital_write(BalizaRoja, False)
 
-            psu.set_current_limit(0)
+            psu.set_current_limit(0.2)
 
 
         TOPMensaje=tk.Toplevel()
@@ -755,7 +755,7 @@ class Aplicacion():
                     rpiplc.digital_write(BalizaVerde, False)
                     rpiplc.digital_write(BalizaAmarilla, False)
                     rpiplc.digital_write(BalizaRoja, True)
-                    Corriente_Consigna(0)
+                    Corriente_Consigna(0.2)
                     break
                 if corriente_real>consigna:
                     consignaI=consignaI-dif
@@ -1088,7 +1088,7 @@ class Aplicacion():
                     self.EDTestM5.set(self.EDTestM5.get()+"\n"+self.Resultado.get())
                     self.root.update()
 
-            Corriente_Consigna(0)
+            Corriente_Consigna(0.2)
             self.Corriente_medida.set("0.0A")
             self.CDT_medida.set("0.0mV")
             rpiplc.digital_write(RelayPd, False)
@@ -1249,7 +1249,7 @@ class Aplicacion():
         if not(error):
 
             psu.set_voltage_limit(5.0)
-            psu.set_current_limit(0.2)
+            psu.set_current_limit(1)
             time.sleep(1)
             
             if rpiplc.digital_read(FinEnsayo) == 0:
@@ -1354,7 +1354,7 @@ class Aplicacion():
             rpiplc.digital_write(BalizaVerde, True)
             rpiplc.digital_write(BalizaAmarilla, False)
             rpiplc.digital_write(BalizaRoja, False)
-            psu.set_current_limit(0)
+            psu.set_current_limit(0.2)
             self.EDStopButton.config(state=tk.DISABLED)
             self.mainbutton_ensayodirecto.config(state=tk.NORMAL)
             self.mainbutton_ensayoautomatico.config(state=tk.NORMAL)
@@ -1420,7 +1420,7 @@ class Aplicacion():
         file.write("\r\n" + "COMENTARIO: " + ((self.EDEntryTestReport.get("1.0",tk.END)).replace("\n","\r\n")))
         file.close()
 
-        psu.set_current_limit(0)
+        psu.set_current_limit(0.2)
         rpiplc.digital_write(BalizaVerde, True)
         rpiplc.digital_write(BalizaAmarilla, False)
         rpiplc.digital_write(BalizaRoja, False)
@@ -1625,7 +1625,7 @@ class Aplicacion():
                     rpiplc.digital_write(BalizaVerde, False)
                     rpiplc.digital_write(BalizaAmarilla, False)
                     rpiplc.digital_write(BalizaRoja, True)
-                    Corriente_Consigna(0)
+                    Corriente_Consigna(0.2)
                     break
                 if corriente_real>consigna:
                     consignaI=consignaI-dif
@@ -1765,7 +1765,7 @@ class Aplicacion():
                         Resultado_tiempo=("Tiempo transcurrido: " + str(datetime.timedelta(seconds=time_passed))+"s")
                         self.EDTestM3.set("Ensayo POTENCIA DISIPADA \n" +Resultado_tiempo+"\n"+Resultado)
                         self.root.update()
-                    Corriente_Consigna(0)
+                    Corriente_Consigna(0.2)
                     rpiplc.digital_write(RelayPd, False)
                     rpiplc.digital_write(RelayNoFus, False)
                     rpiplc.digital_write(RelayFus, False)
@@ -1866,7 +1866,7 @@ class Aplicacion():
                         self.root.update()
                     self.EDTestM4.set(self.EDTestM4.get()+self.Resultado.get())
                     self.root.update()
-                Corriente_Consigna(0)
+                Corriente_Consigna(0.2)
                 rpiplc.digital_write(RelayPd, False)
                 rpiplc.digital_write(RelayNoFus, False)
                 rpiplc.digital_write(RelayFus, False)
@@ -1968,7 +1968,7 @@ class Aplicacion():
                     self.EDTestM5.set(self.EDTestM5.get()+self.Resultado.get())
                     self.root.update()
 
-            Corriente_Consigna(0)
+            Corriente_Consigna(0.2)
             rpiplc.digital_write(RelayPd, False)
             rpiplc.digital_write(RelayNoFus, False)
             rpiplc.digital_write(RelayFus, False)
@@ -2128,7 +2128,7 @@ class Aplicacion():
         if not(error):
 
             psu.set_voltage_limit(5.0)
-            psu.set_current_limit(0.2)
+            psu.set_current_limit(1)
             time.sleep(1)
             
             if rpiplc.digital_read(FinEnsayo) == 0:
