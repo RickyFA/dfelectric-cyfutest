@@ -928,7 +928,7 @@ class Aplicacion():
                             Resultado="Potencia Disipada: " + str("%.3f" % round(val_Pd,3)) + "W"
                             if i>(0.25*tiempo/15):
                                 average=(times[i-1]+times[i-21]+times[i-41])/3
-                                if ((times[i-1]<(1.005*average))&(times[i-1]>(0.995*average))):
+                                if ((times[i-1]<(1.005*average)) and (times[i-1]>(0.995*average))):
                                     self.fin_ensayo.set(True)
                                     rpiplc.digital_write(BalizaAmarilla, False)
                                     rpiplc.digital_write(BalizaVerde, True)
@@ -1809,7 +1809,7 @@ class Aplicacion():
                             Resultado="Potencia Disipada: " + str("%.3f" % round(val_Pd,3)) + "W"
                             if i>(0.25*tiempo/15):
                                 average=(times[i-1]+times[i-21]+times[i-41])/3
-                                if ((times[i-1]<(1.002*average))&(times[i-1]>(0.998*average))):
+                                if ((times[i-1]<(1.005*average)) and (times[i-1]>(0.995*average))):
                                     fin_ensayo_interno=True
                         time.sleep(0.5)
                         timeN=time.time()
