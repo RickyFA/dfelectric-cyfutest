@@ -759,7 +759,7 @@ class Aplicacion():
                                     ads.gain = 16
                                     time.sleep(0.01)
                                     lectura=((CDT.value)/65535.0)*2.0*0.256
-                return lectura
+                return abs(lectura)
             except:
                 print("Error en Lectura_CDT()")
                 return 0.0
@@ -1636,7 +1636,7 @@ class Aplicacion():
                                     ads.gain = 16
                                     time.sleep(0.01)
                                     lectura=((CDT.value)/65535.0)*2.0*0.256
-                return lectura
+                return abs(lectura)
             except:
                 print("Error en Lectura_CDT()")
                 return 0.0
